@@ -26,17 +26,20 @@ async function onMessage(msg) {
     console.log(
       `Group name: ${topic} talker: ${await contact.name()} content: ${content}`
     );
-
-    const pattern = RegExp(`^@${receiver.name()}\\s+${config.groupKey}[\\s]*`);
+    // const pattern = RegExp(`^@${receiver.name()}\\s+${config.groupKey}[\\s]*`);
     if (await msg.mentionSelf()) {
-      if (pattern.test(content)) {
-        const groupContent = content.replace(pattern, '');
-        replyMessage(room, groupContent);
-        return;
-      } else {
-        console.log(
-          'Content is not within the scope of the customizition format'
-        );
+      if (config.autoReply) {
+        if (content.startsWith(config.groupKey) || config.groupKey === '') {
+          let groupContent = content;
+          if (config.groupKey.length > 0) {
+            groupContent = content.substring(config.groupKey.length).trim();
+          }
+          replyMessage(room, groupContent);
+        } else {
+          console.log(
+            'Content is not within the scope of the customizition format'
+          );
+        }
       }
     }
   } else if (isText) {
@@ -44,7 +47,7 @@ async function onMessage(msg) {
     if (config.autoReply) {
       if (content.startsWith(config.privateKey) || config.privateKey === '') {
         let privateContent = content;
-        if (config.privateKey !== '') {
+        if (config.groupKey.length > 0) {
           privateContent = content.substring(config.privateKey.length).trim();
         }
         replyMessage(contact, privateContent);
